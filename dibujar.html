@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clasificador de Dígitos - Dibujando 🙂</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.0.1/cerulean/bootstrap.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        #resultado {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="px-4 py-2 my-2 text-center border-bottom">
+            <h1 class="display-5 fw-bold">Clasificador de Dígitos - Dibujando 🙂</h1>
+            <div class="col-lg-6 mx-auto">
+                <p class="lead mb-0">Dibujando dígitos escritos a mano utilizando TensorFlow.js</p>
+            </div>
+        </div>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-12 col-md-4 offset-md-4">
+                    <form>
+                        <div class="mb-3">
+                            <canvas id="canvas" width="250" height="250"
+                                style="border: 1px solid black; background-color: black;"></canvas>
+                            <br>
+                            <br>
+                            <label for="resultado" class="form-label">Resultado:</label>
+                            <div id="resultado"></div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="limpiarCanvas()">Limpiar</button>
+                        <button type="button" class="btn btn-primary" onclick="predecirDibujo()">Predecir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="index.html" class="btn btn-primary">Ir al método de subir archivo</a>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script type="text/javascript">
+        // Cargar el modelo
+        let modelo;
+
+        async function cargarModelo() {
+            modelo = await tf.loadLayersModel('model.json');
+        }
+
+        cargarModelo();
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        canvas.addEventListener('mousedown', () => {
+            drawing = true;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath();
+        });
+
+        canvas.addEventListener('mousemove', dibujar);
+
+        function dibujar(event) {
+            if (!drawing) return;
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'white';
+            ctx.lineCap = 'round';
+
+            ctx.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
+        }
+
+        function limpiarCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('resultado').innerText = '';
+        }
+
+        async function predecirDibujo() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const tensor = tf.browser.fromPixels(imageData, 1);
+
+            // Redimensionar y ajustar las dimensiones
+            const resized = tf.image.resizeBilinear(tensor, [28, 28]).div(255);
+            const input = resized.reshape([1, 784]); // Cambio aquí: aplanar la imagen a un vector
+
+            const prediction = modelo.predict(input);
+
+            const resultado = prediction.dataSync();
+            const maxProb = Math.max(...resultado);
+            const digit = resultado.indexOf(maxProb);
+
+            document.getElementById('resultado').innerText = `Predicción: ${digit}`;
+        }
+    </script>
+</body>
+
+</html>

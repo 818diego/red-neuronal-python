@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clasificador de Dígitos Escritos a Mano</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.0.1/cerulean/bootstrap.min.css">
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    #resultado {
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="px-4 py-2 my-2 text-center border-bottom">
+      <h1 class="display-5 fw-bold">Predicciones de Dígitos</h1>
+      <div class="col-lg-6 mx-auto">
+        <p class="lead mb-0">Prediccion de dígitos escritos a mano utilizando TensorFlow.js <br>  
+          con un modelo de red neuronal.
+        </p>
+      </div>
+    </div>
+
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-12 col-md-4 offset-md-4">
+          <form>
+            <div class="mb-3">
+              <label for="imagen" class="form-label">Cargar Imagen de Dígito:</label>
+              <input type="file" class="form-control-file" id="imagen" accept="image/*">
+            </div>
+            <div class="mb-3">
+              <label for="resultado" class="form-label">Resultado:</label>
+              <div id="resultado"></div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="predecirImagen()">Predecir</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="dibujar.html" class="btn btn-primary">Ir al método de dibujo</a>
+    </div>
+
+  </main>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script type="text/javascript">
+    //////////////////////// --- MODELO DE SUBIR UN ARCHIVO  --- ////////////////////////
+     let modelo;
+
+    async function cargarModelo() {
+      modelo = await tf.loadLayersModel("model.json");
+    }
+
+    cargarModelo();
+
+    async function predecirImagen() {
+      const imagenInput = document.getElementById("imagen");
+      const resultadoDiv = document.getElementById("resultado");
+
+      if (modelo && imagenInput.files.length > 0) {
+        const imagen = imagenInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async function () {
+          const img = new Image();
+          img.src = reader.result;
+          img.onload = async function () {
+            const tensor = tf.browser.fromPixels(img, 1)
+              .resizeBilinear([28, 28])
+              .reshape([1, 784])
+              .div(255);
+            const prediction = modelo.predict(tensor);
+            const predictedClass = prediction.argMax(1).dataSync()[0];
+            resultadoDiv.innerText = `El resultado es: ${predictedClass}`;
+          };
+        };
+
+        reader.readAsDataURL(imagen);
+      } else {
+        resultadoDiv.innerText = "Carga una imagen y luego presiona 'Predecir'.";
+      }
+    }
+  </script>
+</body>
+
+</html>
