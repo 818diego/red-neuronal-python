@@ -78,8 +78,8 @@
         function dibujar(event) {
             if (!drawing) return;
 
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = 'red';
             ctx.lineCap = 'round';
 
             ctx.lineTo(event.clientX - canvas.getBoundingClientRect().left, event.clientY - canvas.getBoundingClientRect().top);
