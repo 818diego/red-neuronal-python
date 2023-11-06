@@ -55,7 +55,9 @@
         let modelo;
 
         async function cargarModelo() {
+            console.log('Cargando modelo...');
             modelo = await tf.loadLayersModel('model.json');
+            console.log('Modelo cargado');
         }
 
         cargarModelo();
