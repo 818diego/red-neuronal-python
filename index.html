@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Clasificador de Dígitos Escritos a Mano</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.0.1/cerulean/bootstrap.min.css">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="../css/style.css">
   <style>
     #resultado {
       font-weight: bold;
@@ -46,7 +46,10 @@
     </div>
 
     <div class="text-center mt-3">
-      <a href="dibujar.html" class="btn btn-primary">Ir al método de dibujo</a>
+      <a href="../html/dibujar.html" class="btn btn-primary">Ir al método de dibujo</a>
+    </div>
+    <div class="text-center mt-3">
+      <a href="../html/rnProfunda.html" class="btn btn-primary">Ir al método de red neuronal profunda</a>
     </div>
 
   </main>
@@ -58,7 +61,7 @@
      let modelo;
 
     async function cargarModelo() {
-      modelo = await tf.loadLayersModel("model.json");
+      modelo = await tf.loadLayersModel("../modelRNN/model.json");
     }
 
     cargarModelo();
